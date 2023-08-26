@@ -1,0 +1,43 @@
+class Solution(object):
+    def strongPasswordChecker(self, password):
+        # Checking for the types
+        upper, lower, digit = 0, 0, 0
+        for c in password:
+            if 'a' <= c <= 'z':
+                lower = 1
+            if 'A' <= c <= 'Z':
+                upper = 1
+            if c.isdigit():
+                digit = 1
+        types_missing = 3 - (upper + lower + digit)
+
+        # Find the replacements needed for sequences
+        replace = 0
+        one_replace, two_replace = 0, 0
+        i = 2
+        while i < len(password):
+            if password[i] == password[i-1] == password[i-2]:
+                length = 2
+                while i < len(password) and password[i] == password[i-1]:
+                    length += 1
+                    i += 1
+                
+                replace += length // 3
+                if length % 3 == 0: 
+                    one_replace += 1
+                elif length % 3 == 1: 
+                    two_replace += 1
+            else:
+                i += 1
+
+        if len(password) < 6:
+            return max(6 - len(password), types_missing)
+        elif len(password) <= 20:
+            return max(types_missing, replace)
+        else:
+            total_deletion = len(password) - 20
+            replace -= min(total_deletion, one_replace * 1) // 1
+            replace -= min(max(total_deletion - one_replace, 0), two_replace * 2) // 2
+            replace -= max(total_deletion - one_replace - 2 * two_replace, 0) // 3
+            
+            return total_deletion + max(types_missing, replace)
